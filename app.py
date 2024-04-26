@@ -55,6 +55,7 @@ async def process_pdf(request: ProcessRequest):
         
         documents = LlamaParse(result_type="markdown").load_data(pdf_file_path)
         # llm = OpenAI()
+        openai.api_key=os.getenv("OPENAI_API_KEY")
         node_parser = MarkdownElementNodeParser(llm=OpenAI(model="gpt-4-0125-preview"), num_workers=8)
         nodes = node_parser.get_nodes_from_documents(documents)
         base_nodes, objects = node_parser.get_nodes_and_objects(nodes)
