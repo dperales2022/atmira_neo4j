@@ -23,6 +23,15 @@ GENERATION_MODEL = "gpt-4-0125-preview"
 # Initialize OpenAI client
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
+def download_pdf(url):
+    response = requests.get(url)
+    response.raise_for_status()  # Raises an HTTPError for bad responses
+
+    # Create a temporary file to hold the downloaded PDF
+    with NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+        tmp_file.write(response.content)
+        return tmp_file.name  # Return the file path of the downloaded PDF
+
 # Database session setup
 def get_neo4j_session():
     return GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD), database=NEO4J_DATABASE)
@@ -32,14 +41,16 @@ class ProcessRequest(BaseModel):
     pdf_file_path: str
 
 @app.post("/process-pdf/")
-def process_pdf(request: ProcessRequest):
+async def process_pdf(request: ProcessRequest):
     try:
         # Import processing modules
         from llama_parse import LlamaParse
         from llama_index.core.node_parser import MarkdownElementNodeParser
 
         # Load and parse PDF
-        documents = LlamaParse(result_type="markdown").load_data(request.pdf_file_path)
+        pdf_file_path = download_pdf(request.pdf_file_path)
+        
+        documents = LlamaParse(result_type="markdown").load_data(pdf_file_path)
         llm = OpenAI(model=GENERATION_MODEL)
         node_parser = MarkdownElementNodeParser(llm=llm, num_workers=8)
         nodes = node_parser.get_nodes_from_documents(documents)
