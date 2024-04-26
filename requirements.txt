@@ -6,3 +6,6 @@ openai
 nest_asyncio
 pydantic
 llama-index
+llama-index-core
+llama-index-embeddings-openai
+llama-parse
