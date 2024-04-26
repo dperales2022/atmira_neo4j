@@ -28,7 +28,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 EMBEDDING_MODEL = "text-embedding-3-small"
 GENERATION_MODEL = "gpt-4-0125-preview"
 
-llm = OpenAI(model_name=GENERATION_MODEL)
+llm = OpenAI(model=GENERATION_MODEL)
 Settings.llm = llm
 
 def download_pdf(url):
