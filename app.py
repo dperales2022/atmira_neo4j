@@ -8,7 +8,8 @@ from openai import OpenAI
 import openai
 import requests
 from tempfile import NamedTemporaryFile
-
+from llama_parse import LlamaParse
+from llama_index.core.node_parser import MarkdownElementNodeParser
 import nest_asyncio
 nest_asyncio.apply()
 
@@ -26,6 +27,9 @@ NEO4J_DATABASE = "neo4j"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 EMBEDDING_MODEL = "text-embedding-3-small"
 GENERATION_MODEL = "gpt-4-0125-preview"
+
+llm = OpenAI(model_name=GENERATION_MODEL)
+Settings.llm = llm
 
 def download_pdf(url):
     response = requests.get(url)
@@ -47,17 +51,11 @@ class ProcessRequest(BaseModel):
 @app.post("/process-pdf/")
 async def process_pdf(request: ProcessRequest):
     try:
-        # Import processing modules
-        from llama_parse import LlamaParse
-        from llama_index.core.node_parser import MarkdownElementNodeParser
-
         # Load and parse PDF
         pdf_file_path = download_pdf(request.pdf_file_path)
         
         documents = LlamaParse(result_type="markdown").load_data(pdf_file_path)
-        # llm = OpenAI()
-        openai.api_key=os.getenv("OPENAI_API_KEY")
-        node_parser = MarkdownElementNodeParser(llm=OpenAI(model_name="gpt-3.5-turbo-1106"), num_workers=8)
+        node_parser = MarkdownElementNodeParser(llm=llm, num_workers=8)
         nodes = node_parser.get_nodes_from_documents(documents)
         base_nodes, objects = node_parser.get_nodes_and_objects(nodes)
 
