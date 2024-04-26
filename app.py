@@ -45,24 +45,6 @@ def process_pdf(request: ProcessRequest):
         nodes = node_parser.get_nodes_from_documents(documents)
         base_nodes, objects = node_parser.get_nodes_and_objects(nodes)
 
-        # Initialize Neo4j database session
-        driver = get_neo4j_session()
-        with driver.session() as session:
-            # Initialize database schema
-            cypher_schema = [
-                "CREATE CONSTRAINT sectionKey IF NOT EXISTS FOR (c:Section) REQUIRE (c.key) IS UNIQUE;",
-                "CREATE CONSTRAINT chunkKey IF NOT EXISTS FOR (c:Chunk) REQUIRE (c.key) IS UNIQUE;",
-                "CREATE CONSTRAINT documentKey IF NOT EXISTS FOR (c:Document) REQUIRE (c.url_hash) IS UNIQUE;",
-                "CREATE VECTOR INDEX `chunkVectorIndex` IF NOT EXISTS FOR (e:Embedding) ON (e.value) OPTIONS { indexConfig: {`vector.dimensions`: 1536, `vector.similarity_function`: 'cosine'}};"
-            ]
-            for cypher in cypher_schema:
-                session.run(cypher)
-
-            # Process and save documents and nodes
-            # Insert your document and node processing Neo4j cyphers here as per the script
-            
-        # Close Neo4j driver session
-        driver.close()
         return {"status": "success", "message": "PDF processed and data stored successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
