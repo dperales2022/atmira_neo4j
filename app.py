@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import json
 from neo4j import GraphDatabase
 from openai import OpenAI
+import openai
 import requests
 from tempfile import NamedTemporaryFile
 
