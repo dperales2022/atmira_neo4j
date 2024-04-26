@@ -21,6 +21,7 @@ app = FastAPI()
 NEO4J_URL = os.environ["NEO4J_URI"]
 NEO4J_USER = os.environ["NEO4J_USERNAME"]
 NEO4J_PASSWORD = os.environ["NEO4J_PASSWORD"]
+NEO4J_DATABASE = "neo4j"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 EMBEDDING_MODEL = "text-embedding-3-small"
 GENERATION_MODEL = "gpt-4-0125-preview"
