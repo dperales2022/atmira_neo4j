@@ -5,10 +5,6 @@ from dotenv import load_dotenv
 import json
 from neo4j import GraphDatabase
 from openai import OpenAI
-import nest_asyncio
-
-# Setup async environment for running in environments like Jupyter
-nest_asyncio.apply()
 
 # Load environment variables
 load_dotenv()
