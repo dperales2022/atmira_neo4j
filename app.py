@@ -5,8 +5,6 @@ from dotenv import load_dotenv
 import json
 from neo4j import GraphDatabase
 from openai import OpenAI
-import nest_asyncio
-nest_asyncio.apply()
 
 # Load environment variables
 load_dotenv()
