@@ -32,7 +32,7 @@ class ProcessRequest(BaseModel):
     pdf_file_path: str
 
 @app.post("/process-pdf/")
-async def process_pdf(request: ProcessRequest):
+def process_pdf(request: ProcessRequest):
     try:
         # Import processing modules
         from llama_parse import LlamaParse
