@@ -5,7 +5,10 @@ from dotenv import load_dotenv
 import json
 from neo4j import GraphDatabase
 from openai import OpenAI
-import openai
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core import  VectorStoreIndex
+from llama_index.core import Settings
 import requests
 from tempfile import NamedTemporaryFile
 from llama_parse import LlamaParse
