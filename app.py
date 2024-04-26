@@ -47,6 +47,21 @@ def download_pdf(url):
 def get_neo4j_session():
     return GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD), database=NEO4J_DATABASE)
 
+def initialiseNeo4jSchema():
+    cypher_schema = [
+        "CREATE CONSTRAINT sectionKey IF NOT EXISTS FOR (c:Section) REQUIRE (c.key) IS UNIQUE;",
+        "CREATE CONSTRAINT chunkKey IF NOT EXISTS FOR (c:Chunk) REQUIRE (c.key) IS UNIQUE;",
+        "CREATE CONSTRAINT documentKey IF NOT EXISTS FOR (c:Document) REQUIRE (c.url_hash) IS UNIQUE;",
+        "CREATE VECTOR INDEX `chunkVectorIndex` IF NOT EXISTS FOR (e:Embedding) ON (e.value) OPTIONS { indexConfig: {`vector.dimensions`: 1536, `vector.similarity_function`: 'cosine'}};"
+    ]
+
+    driver = GraphDatabase.driver(NEO4J_URL, database=NEO4J_DATABASE, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
+    with driver.session() as session:
+        for cypher in cypher_schema:
+            session.run(cypher)
+    driver.close()
+
 # Pydantic model for receiving PDF file path
 class ProcessRequest(BaseModel):
     pdf_file_path: str
@@ -62,6 +77,8 @@ async def process_pdf(request: ProcessRequest):
         nodes = node_parser.get_nodes_from_documents(documents)
         base_nodes, objects = node_parser.get_nodes_and_objects(nodes)
 
+        initialiseNeo4jSchema()
+        
         return {"status": "success", "message": "PDF processed and data stored successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
