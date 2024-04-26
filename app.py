@@ -8,6 +8,9 @@ from openai import OpenAI
 import requests
 from tempfile import NamedTemporaryFile
 
+import nest_asyncio
+nest_asyncio.apply()
+
 # Load environment variables
 load_dotenv()
 
