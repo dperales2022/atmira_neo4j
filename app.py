@@ -26,9 +26,6 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 EMBEDDING_MODEL = "text-embedding-3-small"
 GENERATION_MODEL = "gpt-4-0125-preview"
 
-# Initialize OpenAI client
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-
 def download_pdf(url):
     response = requests.get(url)
     response.raise_for_status()  # Raises an HTTPError for bad responses
