@@ -6,6 +6,7 @@ import json
 from neo4j import GraphDatabase
 from openai import OpenAI
 import requests
+from tempfile import NamedTemporaryFile
 
 # Load environment variables
 load_dotenv()
