@@ -30,6 +30,8 @@ NEO4J_DATABASE = "neo4j"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 EMBEDDING_MODEL = "text-embedding-3-small"
 GENERATION_MODEL = "gpt-4-0125-preview"
+TABLE_REF_SUFFIX = '_table_ref'
+TABLE_ID_SUFFIX  = '_table'
 
 llm = OpenAI(model=GENERATION_MODEL)
 Settings.llm = llm
