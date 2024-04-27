@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 import json
 from neo4j import GraphDatabase
-from openai import OpenAI
+
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core import  VectorStoreIndex
@@ -64,6 +64,7 @@ def get_embedding(client, text, model):
     return response.data[0].embedding
 
 def LoadEmbedding(label, property):
+    from openai import OpenAI
     driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD), database=NEO4J_DATABASE)
     openai_client = OpenAI (api_key = os.environ["OPENAI_API_KEY"])
 
