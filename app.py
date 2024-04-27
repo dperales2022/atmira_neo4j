@@ -64,9 +64,10 @@ def initialiseNeo4jSchema():
             session.run(cypher)
     driver.close()
 
-# Pydantic model for receiving PDF file path
+# Pydantic model for receiving PDF file path and customer_id
 class ProcessRequest(BaseModel):
     pdf_file_path: str
+    customer_id: str
 
 @app.post("/process-pdf/")
 async def process_pdf(request: ProcessRequest):
