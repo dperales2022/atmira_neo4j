@@ -51,6 +51,7 @@ def get_neo4j_session():
 
 def initialiseNeo4jSchema():
     cypher_schema = [
+        "CREATE CONSTRAINT personNif IF NOT EXISTS FOR (p:Person) REQUIRE p.nif IS UNIQUE;",  # Ensuring NIF is unique for each person
         "CREATE CONSTRAINT sectionKey IF NOT EXISTS FOR (c:Section) REQUIRE (c.key) IS UNIQUE;",
         "CREATE CONSTRAINT chunkKey IF NOT EXISTS FOR (c:Chunk) REQUIRE (c.key) IS UNIQUE;",
         "CREATE CONSTRAINT documentKey IF NOT EXISTS FOR (c:Document) REQUIRE (c.url_hash) IS UNIQUE;",
@@ -68,6 +69,7 @@ def initialiseNeo4jSchema():
 class ProcessRequest(BaseModel):
     pdf_file_path: str
     customer_id: str
+    customer_name: str
 
 @app.post("/process-pdf/")
 async def process_pdf(request: ProcessRequest):
@@ -84,19 +86,34 @@ async def process_pdf(request: ProcessRequest):
 
         driver = GraphDatabase.driver(NEO4J_URL, database=NEO4J_DATABASE, auth=(NEO4J_USER, NEO4J_PASSWORD))
         
+        print("Start saving person to Neo4j...")
+        with driver.session() as session:
+            # First, handle the person node
+            person_cypher = """
+            MERGE (p:Person {nif: $nif})
+            ON CREATE SET p.name=$name
+            ON MATCH SET p.name=$name
+            """
+            session.run(person_cypher, nif=request.customer_id, name=request.customer_name)
+            
         print("Start saving documents to Neo4j...")
         i = 0
         with driver.session() as session:
             for doc in documents:
                 cypher = "MERGE (d:Document {url_hash: $doc_id}) ON CREATE SET d.url=$url;"
                 session.run(cypher, doc_id=doc.doc_id, url=doc.doc_id)
+
+                result = session.run("""
+                    MATCH (p:Person {nif: $nif}), (d:Document {url_hash: $doc_id})
+                    MERGE (d)-[r:ASSOCIATED_WITH]->(p)
+                    RETURN r
+                """, {'nif': request.customer_id, 'doc_id': doc.doc_id})
                 i = i + 1
             session.close()
         
         print(f"{i} documents saved.")
         
         print("Start saving nodes to Neo4j...")
-        
         i = 0
         with driver.session() as session:
             for node in base_nodes: 
@@ -140,7 +157,6 @@ async def process_pdf(request: ProcessRequest):
         print(f"{i} nodes saved.")
         
         print("Start saving objects to Neo4j...")
-        
         i = 0
         with driver.session() as session:
             for node in objects:               
@@ -181,7 +197,6 @@ async def process_pdf(request: ProcessRequest):
             session.close()
         
         print("Start creating chunks for each TEXT Section...")
-        
         with driver.session() as session:
             cypher  = "MATCH (s:Section) WHERE s.type='TEXT' \n"
             cypher += "WITH s CALL {\n"
@@ -192,7 +207,6 @@ async def process_pdf(request: ProcessRequest):
             cypher += "CREATE (s) <-[:UNDER_SECTION]-(c) } IN TRANSACTIONS OF 500 ROWS ;"
             
             session.run(cypher)
-            
             session.close()
 
         print(f"{i} objects saved.")
