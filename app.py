@@ -14,7 +14,7 @@ import requests
 from tempfile import NamedTemporaryFile
 from llama_parse import LlamaParse
 from llama_index.core.node_parser import MarkdownElementNodeParser
-from openai import OpenAI
+
 import nest_asyncio
 nest_asyncio.apply()
 
