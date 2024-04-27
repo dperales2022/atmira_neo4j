@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
@@ -21,6 +22,15 @@ load_dotenv()
 
 # FastAPI application
 app = FastAPI()
+
+# Add a CORS middleware to the application
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Neo4j and OpenAI configurations
 NEO4J_URL = os.environ["NEO4J_URI"]
